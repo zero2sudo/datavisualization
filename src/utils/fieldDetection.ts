@@ -39,7 +39,7 @@ export function detectFieldType(values: unknown[]): FieldType {
 
   if (isNumeric) {
     if (uniqueCount <= CATEGORICAL_THRESHOLD) {
-      return 'nominal';
+      return 'ordinal';
     }
     return 'quantitative';
   }

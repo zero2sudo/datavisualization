@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { DetectedField, FieldType } from '../../types';
+import { useApp } from '../../context/AppContext';
 
 const TYPE_COLORS: Record<FieldType, string> = {
   quantitative: 'var(--color-quantitative)',
@@ -21,6 +22,7 @@ interface FieldPillProps {
 }
 
 export function FieldPill({ field, index }: FieldPillProps) {
+  const { toggleFieldType } = useApp();
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -34,6 +36,7 @@ export function FieldPill({ field, index }: FieldPillProps) {
     setIsDragging(false);
   };
 
+  const canToggle = field.type === 'ordinal' || field.type === 'nominal';
   const color = TYPE_COLORS[field.type];
 
   return (
@@ -96,6 +99,50 @@ export function FieldPill({ field, index }: FieldPillProps) {
       >
         {field.name}
       </span>
+
+      {/* Toggle button for ordinal/nominal */}
+      {canToggle && isHovered && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFieldType(field.name);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          draggable={false}
+          title={field.type === 'ordinal'
+            ? 'Switch to Nominal (distinct colors)'
+            : 'Switch to Ordinal (gradient colors)'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '20px',
+            height: '20px',
+            padding: 0,
+            backgroundColor: 'var(--color-bg-tertiary)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            color: 'var(--color-text-secondary)',
+            fontSize: '10px',
+            fontWeight: 600,
+            flexShrink: 0,
+            transition: 'all 0.15s ease',
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-accent-glow)';
+            e.currentTarget.style.borderColor = 'var(--color-accent)';
+            e.currentTarget.style.color = 'var(--color-accent)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+            e.currentTarget.style.borderColor = 'var(--color-border)';
+            e.currentTarget.style.color = 'var(--color-text-secondary)';
+          }}
+        >
+          {field.type === 'ordinal' ? 'N' : 'O'}
+        </button>
+      )}
 
       {/* Drag indicator */}
       <svg

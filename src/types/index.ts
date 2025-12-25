@@ -27,4 +27,5 @@ export type AppAction =
   | { type: 'REMOVE_FIELD'; channel: EncodingChannel }
   | { type: 'CLEAR_ALL' }
   | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string };
+  | { type: 'SET_ERROR'; payload: string }
+  | { type: 'TOGGLE_FIELD_TYPE'; fieldName: string };

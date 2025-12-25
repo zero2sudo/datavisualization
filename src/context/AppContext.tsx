@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import type { AppState, AppAction, DetectedField, EncodingChannel } from '../types';
+import type { AppState, AppAction, DetectedField, EncodingChannel, FieldType } from '../types';
 import { detectAllFields } from '../utils/fieldDetection';
 import carsData from '../../cars.json';
 
@@ -33,6 +33,25 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, isLoading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, isLoading: false };
+    case 'TOGGLE_FIELD_TYPE': {
+      const newFields = state.fields.map((field) => {
+        if (field.name === action.fieldName) {
+          // Toggle between ordinal and nominal
+          const newType: FieldType = field.type === 'ordinal' ? 'nominal' : 'ordinal';
+          return { ...field, type: newType };
+        }
+        return field;
+      });
+      // Also update any encodings that use this field
+      const newEncodings = { ...state.encodings };
+      for (const [channel, field] of Object.entries(newEncodings)) {
+        if (field && field.name === action.fieldName) {
+          const newType: FieldType = field.type === 'ordinal' ? 'nominal' : 'ordinal';
+          newEncodings[channel as EncodingChannel] = { ...field, type: newType };
+        }
+      }
+      return { ...state, fields: newFields, encodings: newEncodings };
+    }
     default:
       return state;
   }
@@ -43,6 +62,7 @@ interface AppContextType {
   assignField: (channel: EncodingChannel, field: DetectedField) => void;
   removeField: (channel: EncodingChannel) => void;
   clearAll: () => void;
+  toggleFieldType: (fieldName: string) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -74,8 +94,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_ALL' });
   };
 
+  const toggleFieldType = (fieldName: string) => {
+    dispatch({ type: 'TOGGLE_FIELD_TYPE', fieldName });
+  };
+
   return (
-    <AppContext.Provider value={{ state, assignField, removeField, clearAll }}>
+    <AppContext.Provider value={{ state, assignField, removeField, clearAll, toggleFieldType }}>
       {children}
     </AppContext.Provider>
   );
