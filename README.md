@@ -4,7 +4,7 @@ A drag-and-drop data visualization tool built with React, TypeScript, and Vega-L
 
 ## About This Project
 
-This repository is a demonstration of [Claude Code](https://claude.com/claude-code) and Claude Opus 4.5, created by [zero2sudo](https://instagram.com/zero2sudo) in partnership with Anthropic.
+This repository is a demonstration of [Claude Code](https://claude.com/claude-code) and Claude Opus 4.5, created by [zero2sudo](https://instagram.com/zero2sudo) in partnership with Anthropic. Watch the original video: [instagram.com/p/DSgWeRhAb1j](https://www.instagram.com/p/DSgWeRhAb1j/)
 
 ### Educational Resource
 
