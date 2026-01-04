@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EncodingChannel, DetectedField, FieldType } from '../../types';
+import type { EncodingChannel, FieldType, DragPayload } from '../../types';
 import { useApp } from '../../context/AppContext';
 
 const TYPE_COLORS: Record<FieldType, string> = {
@@ -25,12 +25,16 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
   const { state, assignField, removeField } = useApp();
   const [isOver, setIsOver] = useState(false);
   const [isHoveredRemove, setIsHoveredRemove] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const assignedField = state.encodings[channel];
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+    // Don't set dropEffect - let the browser use effectAllowed from the drag source
+    if (!isOver) {
+      console.log('[handleDragOver] dragging over channel:', channel);
+    }
     setIsOver(true);
   };
 
@@ -39,14 +43,61 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    console.log('[handleDrop] DROP EVENT FIRED on channel:', channel);
     e.preventDefault();
     setIsOver(false);
 
-    const fieldData = e.dataTransfer.getData('application/json');
-    if (fieldData) {
-      const field = JSON.parse(fieldData) as DetectedField;
-      assignField(channel, field);
+    const data = e.dataTransfer.getData('application/json');
+    console.log('[handleDrop] raw data:', data);
+    if (!data) return;
+
+    const payload = JSON.parse(data) as DragPayload;
+    console.log('[handleDrop] parsed payload:', payload);
+    console.log('[handleDrop] dropping on channel:', channel);
+    console.log('[handleDrop] current assignedField:', assignedField);
+
+    // Edge case: dropping on same channel - no-op
+    if (payload.sourceType === 'encodingShelf' && payload.sourceChannel === channel) {
+      console.log('[handleDrop] same channel, skipping');
+      return;
     }
+
+    // Move from another encoding shelf
+    if (payload.sourceType === 'encodingShelf' && payload.sourceChannel) {
+      const targetField = assignedField;
+      console.log('[handleDrop] move operation from', payload.sourceChannel, 'to', channel);
+
+      if (targetField) {
+        // SWAP: move target field to source channel
+        console.log('[handleDrop] SWAP: assigning', targetField.name, 'to', payload.sourceChannel);
+        assignField(payload.sourceChannel, targetField);
+      } else {
+        // No field in target - just remove from source
+        console.log('[handleDrop] removing from source:', payload.sourceChannel);
+        removeField(payload.sourceChannel);
+      }
+    }
+
+    // Assign dragged field to this channel
+    console.log('[handleDrop] assigning', payload.field.name, 'to', channel);
+    assignField(channel, payload.field);
+  };
+
+  const handlePillDragStart = (e: React.DragEvent) => {
+    if (!assignedField) return;
+    const payload: DragPayload = {
+      field: assignedField,
+      sourceType: 'encodingShelf',
+      sourceChannel: channel
+    };
+    console.log('[handlePillDragStart] starting drag with payload:', payload);
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+  };
+
+  const handlePillDragEnd = () => {
+    setIsDragging(false);
   };
 
   const handleRemove = () => {
@@ -115,6 +166,9 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
       >
         {assignedField ? (
           <div
+            draggable
+            onDragStart={handlePillDragStart}
+            onDragEnd={handlePillDragEnd}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -125,6 +179,9 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
               border: '1px solid var(--color-border)',
               borderRadius: '6px',
               animation: 'fadeIn 0.2s ease-out',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              opacity: isDragging ? 0.5 : 1,
+              transition: 'opacity 0.2s ease',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
