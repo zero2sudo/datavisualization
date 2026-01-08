@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { DetectedField, FieldType } from '../../types';
+import type { DetectedField, FieldType, DragPayload } from '../../types';
 import { useApp } from '../../context/AppContext';
 
 const TYPE_COLORS: Record<FieldType, string> = {
@@ -27,7 +27,8 @@ export function FieldPill({ field, index }: FieldPillProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData('application/json', JSON.stringify(field));
+    const payload: DragPayload = { field, sourceType: 'fieldList' };
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
     e.dataTransfer.effectAllowed = 'copy';
     setIsDragging(true);
   };

@@ -8,6 +8,12 @@ export interface DetectedField {
 
 export type EncodingChannel = 'x' | 'y' | 'color' | 'size' | 'shape' | 'row' | 'column';
 
+export interface DragPayload {
+  field: DetectedField;
+  sourceType: 'fieldList' | 'encodingShelf';
+  sourceChannel?: EncodingChannel;
+}
+
 export type EncodingState = {
   [K in EncodingChannel]?: DetectedField;
 };
