@@ -18,6 +18,21 @@ Want to supercharge your learning while exploring this codebase? Use this Notion
 
 The template pairs perfectly with the `CLAUDE.md` file in this repo, which is designed to help you learn by treating Claude Code as a mentor that explains concepts in context of this actual codebase.
 
+#### Getting Started as an Intern
+
+1. **Fork this repository** — Click the "Fork" button at the top right of this page to create your own copy
+2. **Clone your fork locally:**
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/datavisualization.git
+   cd datavisualization
+   ```
+3. **Install dependencies and run:**
+   ```bash
+   npm install
+   npm run dev
+   ```
+4. **Follow along with weekly assignments** — Tune in to [@zero2sudo on Instagram](https://instagram.com/zero2sudo) for weekly SWE intern assignments designed to help you build real skills with this codebase
+
 ## Live Demo
 
 Try the application yourself: **https://zero2sudo.github.io/datavisualization/**
