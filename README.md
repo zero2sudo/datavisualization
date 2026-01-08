@@ -10,6 +10,14 @@ This repository is a demonstration of [Claude Code](https://clau.de/zero2sudo) a
 
 This project serves as an educational resource for students and developers who want to see how a senior engineer uses Claude Code to build real applications. Feel free to explore the codebase, review the commit history, and learn from the development process.
 
+### For Aspiring SWE Interns & CS Students
+
+Want to supercharge your learning while exploring this codebase? Use this Notion template to track your progress, document concepts, and build a learning journal as you work through the project:
+
+**📓 [SWE Intern Learning Journal](https://ntn.so/sweinternjournal)**
+
+The template pairs perfectly with the `CLAUDE.md` file in this repo, which is designed to help you learn by treating Claude Code as a mentor that explains concepts in context of this actual codebase.
+
 ## Live Demo
 
 Try the application yourself: **https://zero2sudo.github.io/datavisualization/**
