@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { EncodingShelf } from './EncodingShelf';
 
@@ -54,8 +53,7 @@ const SECTIONS: EncodingSection[] = [
 ];
 
 export function EncodingPanel() {
-  const { clearAll, state } = useApp();
-  const [hoveredClear, setHoveredClear] = useState(false);
+  const { state } = useApp();
 
   const hasEncodings = Object.keys(state.encodings).length > 0;
 
@@ -103,45 +101,6 @@ export function EncodingPanel() {
             Map data to visual properties
           </p>
         </div>
-        {hasEncodings && (
-          <button
-            onClick={clearAll}
-            onMouseEnter={() => setHoveredClear(true)}
-            onMouseLeave={() => setHoveredClear(false)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 10px',
-              fontSize: '11px',
-              fontWeight: 500,
-              backgroundColor: hoveredClear
-                ? 'rgba(239, 68, 68, 0.15)'
-                : 'rgba(239, 68, 68, 0.08)',
-              color: '#ef4444',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              letterSpacing: '0.02em',
-            }}
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-            Clear
-          </button>
-        )}
       </div>
 
       {/* Sections */}
