@@ -67,7 +67,7 @@ export function ChartView() {
     };
 
     embedChart();
-  }, [spec]);
+  }, [spec, state.data, state.encodings]);
 
   const hasEncodings = Object.keys(state.encodings).length > 0;
 
@@ -251,7 +251,7 @@ export function ChartView() {
             </p>
           </div>
         </div>
-      ) : !spec ? (
+      ) : !spec && (
         <div
           style={{
             flex: 1,
@@ -342,25 +342,24 @@ export function ChartView() {
             </p>
           </div>
         </div>
-      ) : (
-        <div
-          ref={containerRef}
-          style={{
-            flex: 1,
-            backgroundColor: 'var(--color-bg-secondary)',
-            borderRadius: '16px',
-            padding: '24px',
-            border: '1px solid var(--color-border)',
-            position: 'relative',
-            zIndex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            animation: 'fadeIn 0.4s ease-out',
-            overflow: 'hidden',
-          }}
-        />
       )}
+      <div
+        ref={containerRef}
+        style={{
+          flex: 1,
+          backgroundColor: 'var(--color-bg-secondary)',
+          borderRadius: '16px',
+          padding: '24px',
+          border: '1px solid var(--color-border)',
+          position: 'relative',
+          zIndex: 1,
+          display: spec ? 'flex' : 'none', // Hide the div when there is no graph
+          alignItems: 'center',
+          justifyContent: 'center',
+          animation: spec ? 'fadeIn 0.4s ease-out' : 'none', // Disable animation when hidden
+          overflow: 'hidden',
+        }}
+      />
 
       {/* Footer gradient line */}
       <div

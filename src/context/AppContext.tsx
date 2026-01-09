@@ -23,8 +23,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         encodings: { ...state.encodings, [action.channel]: action.field },
       };
     case 'REMOVE_FIELD': {
-      const newEncodings = { ...state.encodings };
-      delete newEncodings[action.channel];
+      const {[action.channel]: removed, ...newEncodings} = state.encodings;
       return { ...state, encodings: newEncodings };
     }
     case 'CLEAR_ALL':
