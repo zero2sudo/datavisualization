@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EncodingChannel, DetectedField, FieldType } from '../../types';
+import type { EncodingChannel, FieldType, DragPayload } from '../../types';
 import { useApp } from '../../context/AppContext';
 
 const TYPE_COLORS: Record<FieldType, string> = {
@@ -25,12 +25,12 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
   const { state, assignField, removeField } = useApp();
   const [isOver, setIsOver] = useState(false);
   const [isHoveredRemove, setIsHoveredRemove] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const assignedField = state.encodings[channel];
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
     setIsOver(true);
   };
 
@@ -42,11 +42,46 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
     e.preventDefault();
     setIsOver(false);
 
-    const fieldData = e.dataTransfer.getData('application/json');
-    if (fieldData) {
-      const field = JSON.parse(fieldData) as DetectedField;
-      assignField(channel, field);
+    const data = e.dataTransfer.getData('application/json');
+    if (!data) return;
+
+    const payload = JSON.parse(data) as DragPayload;
+
+    // Dropping on same channel - no-op
+    if (payload.sourceType === 'encodingShelf' && payload.sourceChannel === channel) {
+      return;
     }
+
+    // Move from another encoding shelf
+    if (payload.sourceType === 'encodingShelf' && payload.sourceChannel) {
+      const targetField = assignedField;
+
+      if (targetField) {
+        // Swap: move target field to source channel
+        assignField(payload.sourceChannel, targetField);
+      } else {
+        // No field in target - just remove from source
+        removeField(payload.sourceChannel);
+      }
+    }
+
+    assignField(channel, payload.field);
+  };
+
+  const handlePillDragStart = (e: React.DragEvent) => {
+    if (!assignedField) return;
+    const payload: DragPayload = {
+      field: assignedField,
+      sourceType: 'encodingShelf',
+      sourceChannel: channel
+    };
+    e.dataTransfer.setData('application/json', JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+  };
+
+  const handlePillDragEnd = () => {
+    setIsDragging(false);
   };
 
   const handleRemove = () => {
@@ -115,6 +150,9 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
       >
         {assignedField ? (
           <div
+            draggable
+            onDragStart={handlePillDragStart}
+            onDragEnd={handlePillDragEnd}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -125,6 +163,9 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
               border: '1px solid var(--color-border)',
               borderRadius: '6px',
               animation: 'fadeIn 0.2s ease-out',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              opacity: isDragging ? 0.5 : 1,
+              transition: 'opacity 0.2s ease',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
