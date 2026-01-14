@@ -9,6 +9,7 @@ const initialState: AppState = {
   encodings: {},
   isLoading: true,
   error: null,
+  selectedField: null,
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -21,6 +22,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         encodings: { ...state.encodings, [action.channel]: action.field },
+        selectedField: null, // Clear selection after assignment
       };
     case 'REMOVE_FIELD': {
       const newEncodings = { ...state.encodings };
@@ -52,6 +54,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
       }
       return { ...state, fields: newFields, encodings: newEncodings };
     }
+    case 'SELECT_FIELD':
+      // Toggle: if same field is clicked again, deselect it
+      if (state.selectedField?.name === action.field.name) {
+        return { ...state, selectedField: null };
+      }
+      return { ...state, selectedField: action.field };
+    case 'DESELECT_FIELD':
+      return { ...state, selectedField: null };
     default:
       return state;
   }
@@ -63,6 +73,8 @@ interface AppContextType {
   removeField: (channel: EncodingChannel) => void;
   clearAll: () => void;
   toggleFieldType: (fieldName: string) => void;
+  selectField: (field: DetectedField) => void;
+  deselectField: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -98,8 +110,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'TOGGLE_FIELD_TYPE', fieldName });
   };
 
+  const selectField = (field: DetectedField) => {
+    dispatch({ type: 'SELECT_FIELD', field });
+  };
+
+  const deselectField = () => {
+    dispatch({ type: 'DESELECT_FIELD' });
+  };
+
   return (
-    <AppContext.Provider value={{ state, assignField, removeField, clearAll, toggleFieldType }}>
+    <AppContext.Provider value={{ state, assignField, removeField, clearAll, toggleFieldType, selectField, deselectField }}>
       {children}
     </AppContext.Provider>
   );

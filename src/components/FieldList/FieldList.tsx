@@ -10,7 +10,8 @@ const TYPE_INFO: { type: FieldType; label: string; color: string }[] = [
 ];
 
 export function FieldList() {
-  const { state } = useApp();
+  const { state, deselectField } = useApp();
+  const hasSelectedField = state.selectedField !== null;
 
   return (
     <aside
@@ -45,9 +46,59 @@ export function FieldList() {
             letterSpacing: '0.02em',
           }}
         >
-          Drag fields to encode your chart
+          Drag or tap fields to encode your chart
         </p>
       </div>
+
+      {/* Selection indicator for touch mode */}
+      {hasSelectedField && (
+        <div
+          style={{
+            marginBottom: '16px',
+            padding: '10px 12px',
+            backgroundColor: 'var(--color-accent-glow)',
+            border: '1px solid var(--color-accent)',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            animation: 'fadeIn 0.2s ease-out',
+          }}
+        >
+          <span
+            style={{
+              fontSize: '11px',
+              color: 'var(--color-accent)',
+              fontWeight: 500,
+            }}
+          >
+            "{state.selectedField!.name}" selected — tap an encoding
+          </span>
+          <button
+            onClick={deselectField}
+            style={{
+              padding: '4px 8px',
+              backgroundColor: 'transparent',
+              border: '1px solid var(--color-accent)',
+              borderRadius: '4px',
+              fontSize: '10px',
+              color: 'var(--color-accent)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--color-accent)';
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Type legend */}
       <div

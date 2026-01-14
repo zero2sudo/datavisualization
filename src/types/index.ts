@@ -18,6 +18,7 @@ export interface AppState {
   encodings: EncodingState;
   isLoading: boolean;
   error: string | null;
+  selectedField: DetectedField | null; // For touch/click-to-select mode
 }
 
 export type AppAction =
@@ -28,4 +29,6 @@ export type AppAction =
   | { type: 'CLEAR_ALL' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string }
-  | { type: 'TOGGLE_FIELD_TYPE'; fieldName: string };
+  | { type: 'TOGGLE_FIELD_TYPE'; fieldName: string }
+  | { type: 'SELECT_FIELD'; field: DetectedField }
+  | { type: 'DESELECT_FIELD' };

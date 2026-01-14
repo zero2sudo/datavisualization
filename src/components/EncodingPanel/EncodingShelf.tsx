@@ -27,6 +27,7 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
   const [isHoveredRemove, setIsHoveredRemove] = useState(false);
 
   const assignedField = state.encodings[channel];
+  const hasSelectedField = state.selectedField !== null;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -53,7 +54,15 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
     removeField(channel);
   };
 
+  const handleClick = () => {
+    // If there's a selected field and no assigned field, assign it
+    if (hasSelectedField && !assignedField) {
+      assignField(channel, state.selectedField!);
+    }
+  };
+
   const color = assignedField ? TYPE_COLORS[assignedField.type] : 'var(--color-accent)';
+  const isClickable = hasSelectedField && !assignedField;
 
   return (
     <div>
@@ -91,16 +100,19 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onClick={handleClick}
+        onMouseEnter={() => isClickable && setIsOver(true)}
+        onMouseLeave={() => setIsOver(false)}
         style={{
           minHeight: '44px',
           padding: assignedField ? '6px' : '12px',
-          backgroundColor: isOver
+          backgroundColor: isOver || isClickable
             ? 'var(--color-accent-glow)'
             : assignedField
               ? 'var(--color-bg-tertiary)'
               : 'var(--color-bg-elevated)',
-          border: `1px ${isOver ? 'solid' : 'dashed'} ${
-            isOver
+          border: `1px ${isOver || isClickable ? 'solid' : 'dashed'} ${
+            isOver || isClickable
               ? 'var(--color-accent)'
               : assignedField
                 ? 'var(--color-border)'
@@ -111,6 +123,7 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
           display: 'flex',
           alignItems: 'center',
           transform: isOver ? 'scale(1.02)' : 'scale(1)',
+          cursor: isClickable ? 'pointer' : 'default',
         }}
       >
         {assignedField ? (
@@ -201,7 +214,7 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              color: isOver ? 'var(--color-accent)' : 'var(--color-text-muted)',
+              color: isOver || isClickable ? 'var(--color-accent)' : 'var(--color-text-muted)',
               fontSize: '12px',
               transition: 'color 0.2s ease',
             }}
@@ -216,14 +229,14 @@ export function EncodingShelf({ channel, label }: EncodingShelfProps) {
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{
-                opacity: isOver ? 1 : 0.5,
+                opacity: isOver || isClickable ? 1 : 0.5,
                 transition: 'opacity 0.2s ease',
               }}
             >
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            <span>{isOver ? 'Drop to assign' : 'Drop field here'}</span>
+            <span>{isOver ? 'Drop to assign' : isClickable ? 'Tap to assign' : 'Drop field here'}</span>
           </div>
         )}
       </div>

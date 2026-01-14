@@ -22,9 +22,11 @@ interface FieldPillProps {
 }
 
 export function FieldPill({ field, index }: FieldPillProps) {
-  const { toggleFieldType } = useApp();
+  const { toggleFieldType, selectField, state } = useApp();
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  const isSelected = state.selectedField?.name === field.name;
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('application/json', JSON.stringify(field));
@@ -36,6 +38,14 @@ export function FieldPill({ field, index }: FieldPillProps) {
     setIsDragging(false);
   };
 
+  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent click when interacting with toggle button
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    selectField(field);
+  };
+
   const canToggle = field.type === 'ordinal' || field.type === 'nominal';
   const color = TYPE_COLORS[field.type];
 
@@ -45,6 +55,7 @@ export function FieldPill({ field, index }: FieldPillProps) {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
@@ -52,17 +63,20 @@ export function FieldPill({ field, index }: FieldPillProps) {
         alignItems: 'center',
         gap: '10px',
         padding: '10px 14px',
-        backgroundColor: isHovered
-          ? 'var(--color-bg-tertiary)'
-          : 'var(--color-bg-elevated)',
-        border: `1px solid ${isHovered ? 'var(--color-border-hover)' : 'var(--color-border)'}`,
+        backgroundColor: isSelected
+          ? 'var(--color-accent-glow)'
+          : isHovered
+            ? 'var(--color-bg-tertiary)'
+            : 'var(--color-bg-elevated)',
+        border: `1px solid ${isSelected ? 'var(--color-accent)' : isHovered ? 'var(--color-border-hover)' : 'var(--color-border)'}`,
         borderRadius: '8px',
-        cursor: isDragging ? 'grabbing' : 'grab',
+        cursor: isDragging ? 'grabbing' : 'pointer',
         fontSize: '13px',
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        transform: isHovered ? 'translateX(4px)' : 'translateX(0)',
+        transform: isSelected ? 'scale(1.02)' : isHovered ? 'translateX(4px)' : 'translateX(0)',
         opacity: isDragging ? 0.5 : 1,
         animation: `slideIn 0.3s ease-out ${index * 0.03}s both`,
+        boxShadow: isSelected ? `0 0 12px ${color}40` : 'none',
       }}
     >
       {/* Type indicator with glow */}
